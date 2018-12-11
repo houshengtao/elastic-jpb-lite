@@ -75,19 +75,21 @@ public final class FailoverListenerManager extends AbstractListenerManager {
         
         @Override
         protected void dataChanged(final String path, final Type eventType, final String data) {
-            if (isFailoverEnabled() && Type.NODE_REMOVED == eventType && instanceNode.isInstancePath(path)) {
+            if (isFailoverEnabled() && Type.NODE_REMOVED == eventType &&
+                    instanceNode.isInstancePath(path)// path:${JOB_NAME}/instances/${INSTANCE_ID}
+                    ) {
                 String jobInstanceId = path.substring(instanceNode.getInstanceFullPath().length() + 1);
                 if (jobInstanceId.equals(JobRegistry.getInstance().getJobInstance(jobName).getJobInstanceId())) {
                     return;
                 }
-                List<Integer> failoverItems = failoverService.getFailoverItems(jobInstanceId);
+                List<Integer> failoverItems = failoverService.getFailoverItems(jobInstanceId);//// /${JOB_NAME}/sharding/${ITEM_ID}/failover
                 if (!failoverItems.isEmpty()) {
                     for (int each : failoverItems) {
                         failoverService.setCrashedFailoverFlag(each);
                         failoverService.failoverIfNecessary();
                     }
                 } else {
-                    for (int each : shardingService.getShardingItems(jobInstanceId)) {
+                    for (int each : shardingService.getShardingItems(jobInstanceId)) {// /${JOB_NAME}/sharding/${ITEM_ID}/instance
                         failoverService.setCrashedFailoverFlag(each);
                         failoverService.failoverIfNecessary();
                     }

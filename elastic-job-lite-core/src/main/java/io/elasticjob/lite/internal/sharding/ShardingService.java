@@ -194,7 +194,11 @@ public final class ShardingService {
         }
         return false;
     }
-    
+
+    /**
+     * houst
+     * 原子性事务操作
+     */
     @RequiredArgsConstructor
     class PersistShardingInfoTransactionExecutionCallback implements TransactionExecutionCallback {
         
